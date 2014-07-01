@@ -58,12 +58,17 @@
 					console.log(data);
 					$('#result-container').html('');
 					var head = '为您推荐的图书编号为：';
+					var sortable = [];
 					for(var i in data.book){
-						head += i + ', ';
+						sortable.push([i,data.book[i]]);
+					}
+					sortable.sort(function(a,b){ return a[1]-b[1]; });
+					for(var i in sortable){
+						head += sortable[i][0] + ', ';
 					}
 					$('<p>').text(head).appendTo('#result-container');
-					for(var i in data.info){
-						$('<div>').addClass('book-info').html(data.info[i]).appendTo('#result-container');
+					for(var i in sortable){
+						$('<div>').addClass('book-info').html(data.info[sortable[i][0]]).appendTo('#result-container');
 					}
 					
 				});
