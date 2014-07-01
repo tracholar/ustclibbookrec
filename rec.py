@@ -94,7 +94,7 @@ def UserSimilarity(train):
 	
 W = UserSimilarity(train)
 
-K = 3
+K = 10
 def Recommend(user, train, W):
 	rank = dict()
 	if user not in train.keys():
@@ -127,7 +127,7 @@ class MyRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 				bookHtml = urllib.urlopen('http://opac.lib.ustc.edu.cn/opac/item.php?marc_no=' + bid).read()
 				s=re.search(r'<div id="item_detail" style="float:left; width:80%;">(.+)<div style="text-align:left;color:blue;" id="showMoreAnchor"',bookHtml,re.S)
 				if s:
-					bookInfo[bid] = s.group(1)
+					bookInfo[bid] = s.group(1).replace('<a href="','<a target="_blank" href="http://opac.lib.ustc.edu.cn/opac/')
 			data['info'] = bookInfo
 			
 			html = json.dumps(data)
