@@ -28,7 +28,7 @@ def SplitData(data,M,k,seed):
 	
 train = dict()
 test = dict()
-tr, te = SplitData(data,3,1,0)
+tr, te = SplitData(data,3,-1,0)
 for user,item in tr:
 	if train.has_key(user):
 		if item in train[user]:
@@ -70,8 +70,9 @@ def UserSimilarity(train):
 			for v in users:
 				if u==v:
 					continue
-				if (not C.has_key(u)) or (not C[u].has_key(v)):
+				if not C.has_key(u):
 					C[u] = dict()
+				if not C[u].has_key(v):
 					C[u][v] = 1
 				else:
 					C[u][v] += 1
