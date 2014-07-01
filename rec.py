@@ -1,8 +1,12 @@
-# coding:gbk
+# coding:utf-8
 import random
+import re
 import math
+import json
 from operator import *
-import web
+import SimpleHTTPServer
+import SocketServer
+import urllib
 
 data = []
 for line in open('lendformat.txt','r'):
@@ -93,6 +97,8 @@ W = UserSimilarity(train)
 K = 3
 def Recommend(user, train, W):
 	rank = dict()
+	if user not in train.keys():
+		return rank
 	interacted_items = train[user]
 	for v,wuv in sorted(W[user].items(), key=itemgetter(1),reverse=True)[0:K]:
 		for i in train[v]:
@@ -103,21 +109,48 @@ def Recommend(user, train, W):
 	return rank
 	
 
+## 前端显示部分 
+
+# request handler
+class MyRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
+	def do_GET(self):
+		m = re.match(r'/rec/([^/]+)',self.path)
+		if m:
+			print self.path
+			uid = m.group(1)
+			res = Recommend(uid,train,W)
+			
+			data = dict()
+			data['book'] = res
+			bookInfo = dict()
+			for bid in res.keys():
+				bookHtml = urllib.urlopen('http://opac.lib.ustc.edu.cn/opac/item.php?marc_no=' + bid).read()
+				s=re.search(r'<div id="item_detail" style="float:left; width:80%;">(.+)<div style="text-align:left;color:blue;" id="showMoreAnchor"',bookHtml,re.S)
+				if s:
+					bookInfo[bid] = s.group(1)
+			data['info'] = bookInfo
+			
+			html = json.dumps(data)
+			print res
+			self.protocol_version = 'HTTP/1.1'
+			self.send_response(200,'OK')
+			self.send_header('Content-Type','text/json')
+			self.end_headers()
+			self.wfile.write(html)
+		else:
+			return SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
 	
+		
+		
+		
+		
 PORT = 80
-urls = ( '/', 'Index',)
-app = web.application(urls,globals())
-
-
-class Index:
-	def GET(self):
-		id = web.input().uid
-		html = "<br/>".join(['%s="%s"' % (key,value) for (key,value) in Recommend('0813006060',train,W).items() ])
-		print html
-		return html 
+Handler = MyRequestHandler
+server = SocketServer.TCPServer(('0.0.0.0',PORT),Handler)
+server.serve_forever()
 
 print 'server at port ', PORT
-app.run()
+
 
 
 		

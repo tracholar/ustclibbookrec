@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>中科大图书推荐系统展示页面</title>
+		<meta charset="utf-8">
+		<style type="text/css">
+			.book-info {
+				padding:20px 0;
+				border-top:1px solid #DDD;
+				clear:both;
+			}
+			.booklist {
+				width: 99%;
+				clear: both;
+				padding: 0;
+				margin: 0 auto;
+			}
+			.booklist dt {
+				float: left;
+				text-align: right;
+				width: 18%;
+				height: 24px;
+				color: #333;
+				font-weight: bold;
+				margin:0;
+			}
+			.booklist dd {
+				color: 000;
+				text-align: left;
+				float: right;
+				width: 81%;
+				padding: 0;
+				margin:0;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>中科大图书推荐系统展示页面</h1>
+		<div>
+			<label>请输入用户名（数字编号）<input name="uid" type="text" id="uid"></label>
+			<button id="submit" type="button">推荐</button>
+		</div>
+		<div id="result-container">
+		
+		</div>
+		
+		<script type="text/javascript" src="/res/jquery-1.11.1.min.js"></script>
+		<script type="text/javascript">
+			$('#submit').click(function(){
+				var uid = $('#uid').val();
+				$.getJSON('/rec/' + uid, function(data){
+					console.log(data);
+					$('#result-container').html('');
+					var head = '为您推荐的图书编号为：';
+					for(var i in data.book){
+						head += i + ',';
+					}
+					$('<p>').text(head).appendTo('#result-container');
+					for(var i in data.info){
+						$('<div>').addClass('book-info').html(data.info[i]).appendTo('#result-container');
+					}
+					
+				});
+			});
+		</script>
+	</body>
+</html>
