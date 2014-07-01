@@ -59,7 +59,7 @@
 					$('#result-container').html('');
 					var head = '为您推荐的图书编号为：';
 					for(var i in data.book){
-						head += i + ',';
+						head += i + ', ';
 					}
 					$('<p>').text(head).appendTo('#result-container');
 					for(var i in data.info){
