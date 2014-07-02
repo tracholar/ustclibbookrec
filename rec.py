@@ -98,7 +98,7 @@ W = UserSimilarity(train)
 K = 10
 def Recommend(user, train, W):
 	rank = dict()
-	if user not in train.keys():
+	if (user not in train.keys()) or (user not in W.keys()):
 		return rank
 	interacted_items = train[user]
 	for v,wuv in sorted(W[user].items(), key=itemgetter(1),reverse=True)[0:K]:
