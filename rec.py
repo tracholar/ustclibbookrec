@@ -92,21 +92,61 @@ def UserSimilarity(train):
 	print 'create W[u][v] finished!'
 	
 	return W
+
+def ItemSimilarity(train):
+	C = dict()
+	N = dict()
+	
+	for u, items in train.items():
+		for i in items:
+			if i not in N:
+				N[i] = 0
+			N[i] += 1
+			
+			for j in items:
+				if i==j:
+					continue
+				if i not in C:
+					C[i] = dict()
+				if j not in C[i]:
+					C[i][j] = 0
+				C[i][j] += 1
+	
+	W = dict()
+	# f = open('ItemSimilarity.txt','w')
+	for i, related_items in C.items():
+		for j, cij in related_items.items():
+			if i not in W:
+				W[i] = dict()
+			W[i][j] = cij / math.sqrt(N[i] * N[j])
+	#		f.write('%s %s %.5f\n' % (i,j,W[i][j]))
+	# f.close()
+	print 'create Wi[u][v] finished!'
+	return W 
+	
 	
 W = UserSimilarity(train)
+Wi = ItemSimilarity(train)
 
-K = 10
-def Recommend(user, train, W):
+Ku = 10
+Ki = 10
+def Recommend(user, train, W, Wi):
 	rank = dict()
 	if user not in train.keys():
 		return rank
 	interacted_items = train[user]
-	for v,wuv in sorted(W[user].items(), key=itemgetter(1),reverse=True)[0:K]:
+	for v,wuv in sorted(W[user].items(), key=itemgetter(1),reverse=True)[0:Ku]:
 		for i in train[v]:
 			if i in interacted_items:
 				continue
 			rank[i] = wuv
+	
+	for i in train[user]:
+		for j, wj in sorted(Wi[i].items(), key=itemgetter(1), reverse=True)[0:Ki]:
+			if j in train[user] or j in rank.keys():
+				continue
 			
+			rank[j] = wj
 	return rank
 	
 
@@ -119,7 +159,7 @@ class MyRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 		if m:
 			print self.path
 			uid = m.group(1)
-			res = Recommend(uid,train,W)
+			res = Recommend(uid,train,W,Wi)
 			
 			data = dict()
 			data['book'] = res
