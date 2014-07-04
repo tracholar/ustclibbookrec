@@ -54,6 +54,7 @@
 		<script type="text/javascript">
 			$('#submit').click(function(){
 				var uid = $('#uid').val();
+				$('#submit').text('正在推荐...');
 				$.getJSON('/rec/' + uid, function(data){
 					console.log(data);
 					$('#result-container').html('');
@@ -70,7 +71,7 @@
 					for(var i in sortable){
 						$('<div>').addClass('book-info').html(data.info[sortable[i][0]]).appendTo('#result-container');
 					}
-					
+					$('#submit').text('推荐');
 				});
 			});
 		</script>
